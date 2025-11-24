@@ -15,6 +15,7 @@ import api from "@/services/api.service"
 import { useRef, useState } from "react"
 import { debounce, size } from "lodash"
 import ChatHistoryFeature from "./ChatHistoryFeature"
+import { useSearchParams } from "next/navigation"
 
 const queryClient = new QueryClient();
 
@@ -22,10 +23,45 @@ function FormChat() {
   const inputRef = useRef<any>(null);
   const [isDragging, setIsDragging] = useState<boolean>(false)
   const [tempUploadedFile, setTempUploadedFile] = useState<any>(null)
+  const [sessionId, setSessionId] = useState<any>(null)
 
   const [dataDoc, setDataDoc] = useState<any>(null);
   const [historyChat, setHistoryChat] = useState<any>([]);
   const [currentChat, setCurrentChat] = useState<any>("");
+
+  const urlSessionId = useSearchParams().get("sessionId");
+
+  useQuery({
+    queryKey: ["getChatHistory", urlSessionId],
+    queryFn: async () => {
+      if (!urlSessionId) return null;
+      const res = await api.get(`/v1/chat-history/get-one?sessionId=${urlSessionId}`);
+
+      if (res.data) {
+        setSessionId(res.data?.sessionId)
+        const historyRemap = res.data?.data?.map((item: any) => {
+          if (item.role === "user") {
+            return {
+              type: "question",
+              data: item.content
+            }
+          }
+          if (item.role === "assistant") {
+            return {
+              type: "response",
+              data: {
+                answer: item.content
+              }
+            }
+          }
+        })
+
+        setHistoryChat(historyRemap)
+      }
+      return res.data;
+    },
+    enabled: !!urlSessionId,
+  })
 
   const chatToLLM = useMutation({
     mutationFn: async () => {
@@ -34,6 +70,7 @@ function FormChat() {
       const response = await api.post("/v1/llm-client/chat", {
         docId: dataDoc?.docId || undefined,
         question: question,
+        sessionId: sessionId || undefined,
       });
 
       if (response.data) {
@@ -41,6 +78,10 @@ function FormChat() {
           type: "response",
           data: response.data?.data
         }]);
+
+        if (!sessionId) {
+          setSessionId(response.data?.data?.sessionId)
+        }
       }
       return response.data;
     },
@@ -48,13 +89,11 @@ function FormChat() {
 
   const uploadFile = useMutation({
     mutationFn: async ({ file }: { file: FormData }) => {
-      console.log(file);
       const res = await api.request({
         method: 'post',
         url: `/v1/file-upload/upload`,
         data: file,
       });
-      console.log(res.data);
       if (size(res.data)) {
         setDataDoc(res.data)
       }
@@ -129,7 +168,7 @@ function FormChat() {
             <div className="w-full" onDrop={handleDrop} onDragOver={handleDragOver} onDragEnter={handleDragEnter} onDragLeave={handleDragLeave}>
               <InputGroup className="w-full bg-zinc-100 dark:bg-zinc-800 rounded-lg mb-6">
                 <InputGroupTextarea onChange={(e) => setCurrentChat(e.target.value)} value={currentChat} placeholder="Ask, Search or Chat..." />
-                <InputGroupAddon align="block-end">
+                <InputGroupAddon align="block-end" className="flex justify-between gap-2">
                   <div className="flex flex-row gap-2">
                     <InputGroupButton
                       variant="outline"
@@ -138,7 +177,7 @@ function FormChat() {
                       onClick={() => inputRef.current?.click()}
                       disabled={uploadFile.isPending || dataDoc?.docId}
                     >
-                      {uploadFile.isPending ? 
+                      {uploadFile.isPending ?
                         <Loader2 className="animate-spin" />
                         : <IconPlus />
                       }
@@ -146,19 +185,17 @@ function FormChat() {
                     {(tempUploadedFile && dataDoc?.docId) && (
                       <div className="flex flex-row gap-2 items-center justify-center rounded-full border bg-white dark:bg-zinc-900 px-3 py-1 text-xs font-medium">
                         {tempUploadedFile?.name}
-                        <IconX 
-                          className="cursor-pointer" 
+                        <IconX
+                          className="cursor-pointer"
                           onClick={() => {
                             setTempUploadedFile(null);
                             setDataDoc(null);
                           }}
-                          size={14} 
+                          size={14}
                         />
                       </div>
                     )}
                   </div>
-                  <InputGroupText className="ml-auto">52% used</InputGroupText>
-                  <Separator orientation="vertical" className="!h-4" />
                   <InputGroupButton
                     variant="default"
                     className="rounded-full"
