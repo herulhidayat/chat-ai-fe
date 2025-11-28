@@ -12,10 +12,11 @@ import { ArrowUpIcon, Loader2 } from "lucide-react"
 import { Separator } from "@/components/ui/separator"
 import { QueryClient, QueryClientProvider, useMutation, useQuery } from "@tanstack/react-query"
 import api from "@/services/api.service"
-import { useRef, useState } from "react"
+import { Suspense, useRef, useState } from "react"
 import { debounce, size } from "lodash"
 import ChatHistoryFeature from "./ChatHistoryFeature"
 import { useSearchParams } from "next/navigation"
+import AppLoader from "@/components/ui/app-loader"
 
 const queryClient = new QueryClient();
 
@@ -223,7 +224,9 @@ function FormChat() {
 export default function FormChatFeature() {
   return (
     <QueryClientProvider client={queryClient}>
-      <FormChat />
+      <Suspense fallback={<AppLoader />}>
+        <FormChat />
+      </Suspense>
     </QueryClientProvider>
   );
 }
