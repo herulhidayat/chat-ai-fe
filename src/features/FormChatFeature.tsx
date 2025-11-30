@@ -39,7 +39,7 @@ function FormChat() {
       const res = await api.get(`/v1/chat-history/get-one?sessionId=${urlSessionId}`);
 
       if (res.data) {
-        setSessionId(res.data?.sessionId)
+        setSessionId(res.data?.session_id)
         const historyRemap = res.data?.data?.map((item: any) => {
           if (item.role === "user") {
             return {
@@ -81,7 +81,7 @@ function FormChat() {
         }]);
 
         if (!sessionId) {
-          setSessionId(response.data?.data?.sessionId)
+          setSessionId(response.data?.data?.session_id)
         }
       }
       return response.data;

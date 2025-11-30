@@ -51,8 +51,8 @@ function ListChatHistory() {
             {getListChat.data?.map((item: any, index: number) => (
               <SidebarMenuItem key={index} className="cursor-pointer">
                 <SidebarMenuButton asChild>
-                  <div onClick={() => router.push(`/chat?sessionId=${item.sessionId}`)}>
-                    <span>{item.historyName}</span>
+                  <div onClick={() => router.push(`/chat?sessionId=${item.session_id}`)}>
+                    <span>{item.history_name}</span>
                   </div>
                 </SidebarMenuButton>
               </SidebarMenuItem>
