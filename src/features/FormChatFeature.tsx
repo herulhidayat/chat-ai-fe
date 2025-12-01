@@ -36,7 +36,7 @@ function FormChat() {
     queryKey: ["getChatHistory", urlSessionId],
     queryFn: async () => {
       if (!urlSessionId) return null;
-      const res = await api.get(`/v1/chat-history/get-one?sessionId=${urlSessionId}`);
+      const res = await api.get(`/v1/chat-history/get-one?session_id=${urlSessionId}`);
 
       if (res.data) {
         setSessionId(res.data?.session_id)
@@ -71,7 +71,7 @@ function FormChat() {
       const response = await api.post("/v1/llm-client/chat", {
         docId: dataDoc?.docId || undefined,
         question: question,
-        sessionId: sessionId || undefined,
+        session_id: sessionId || undefined,
       });
 
       if (response.data) {
@@ -165,7 +165,7 @@ function FormChat() {
           <div className="mt-4 overflow-y-auto">
             <ChatHistoryFeature data={historyChat} isLoading={chatToLLM.isPending} />
           </div>
-          <div className={`min-w-full mx-auto ${Boolean(size(historyChat)) ? "bottom-0 sticky pb-4 pt-6 bg-linear-to-t from-zinc-50 from-90% to-transparent" : "flex items-center min-h-screen"}`}>
+          <div className={`min-w-full mx-auto ${Boolean(size(historyChat)) ? "bottom-0 sticky pb-4 pt-6 bg-linear-to-t from-zinc-50 dark:from-black from-90% to-transparent" : "flex items-center min-h-screen"}`}>
             <div className="w-full" onDrop={handleDrop} onDragOver={handleDragOver} onDragEnter={handleDragEnter} onDragLeave={handleDragLeave}>
               <InputGroup className="w-full bg-zinc-100 dark:bg-zinc-800 rounded-lg mb-6">
                 <InputGroupTextarea onChange={(e) => setCurrentChat(e.target.value)} value={currentChat} placeholder="Ask, Search or Chat..." />

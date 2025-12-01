@@ -56,7 +56,7 @@ export default function TextTypingMarkdown({
   }, [typedText, text, isTruncate]);
 
   return (
-    <article className="prose prose-sm">
+    <article className="prose prose-sm dark:prose-invert">
       <ReactMarkdown remarkPlugins={[remarkGfm]} rehypePlugins={[rehypeRaw]}>
         {finalMarkdown}
       </ReactMarkdown>

@@ -13,7 +13,7 @@ export default function ChatHistoryFeature({ data, isLoading }: any) {
                                 {item?.type == "question" && (
                                     <div className="flex flex-row justify-end gap-2 ps-28">
                                         <div className="flex flex-row gap-2">
-                                            <div className="flex items-center justify-center rounded-md rounded-se-none bg-blue-100 px-3 py-2 text-xs font-medium">
+                                            <div className="flex items-center justify-center rounded-md rounded-se-none bg-blue-100 dark:bg-blue-900 px-3 py-2 text-xs font-medium">
                                                 {item.data}
                                             </div>
                                         </div>
